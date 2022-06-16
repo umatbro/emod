@@ -24,7 +24,8 @@ const SPECIAL_CHARACTERS: phf::Map<char, &'static str> = phf_map! {
 };
 
 pub fn run(cli_args: cli_args::Args) -> String {
-    parse_text(&cli_args.text, Some(&cli_args))
+    let full_text = cli_args.words.join(" ");
+    parse_text(&full_text, Some(&cli_args))
 }
 
 fn parse_text(text: &str, args: Option<&cli_args::Args>) -> String {
@@ -42,7 +43,7 @@ fn parse_grapheme(gr: &str, args: Option<&cli_args::Args>) -> String {
     }
     let c = gr.char_indices().next().unwrap().1;
 
-    if c == ' ' {
+    if c.is_whitespace() {
         return args.expect("Args space is not set!").space.to_string();
     }
     
@@ -69,7 +70,7 @@ fn parse_grapheme(gr: &str, args: Option<&cli_args::Args>) -> String {
 
 #[cfg(test)]
 mod test {
-    use super::{parse_grapheme, parse_text};
+    use super::{parse_grapheme, parse_text, run};
     use crate::cli_args;
 
     #[test]
@@ -125,7 +126,7 @@ mod test {
 
     #[test]
     fn test_space_in_text() {
-        let args = cli_args::Args{text: String::new(), space: ":white-small-square:".to_string()};
+        let args = cli_args::Args{words: vec![], space: ":white-small-square:".to_string()};
         assert_eq!(
             parse_text("G r8", Some(&args)),
             ":alphabet-white-g: :white-small-square: :alphabet-yellow-r: :eight:"
@@ -134,8 +135,21 @@ mod test {
 
     #[test]
     fn test_custom_space() {
-        let custom_space_args = cli_args::Args {text: "".to_string(), space: ":white_circle:".to_string()};
+        let custom_space_args = cli_args::Args {words: vec![], space: ":white_circle:".to_string()};
         let result = parse_grapheme(" ", Some(&custom_space_args));
         assert_eq!(result, ":white_circle:")
+    }
+
+    #[test]
+    #[ignore] // ignore because it fails with current implementation
+    fn test_run_with_polish_chars() {
+        let cli_args = cli_args::Args {
+            words: vec!["ą ę ć".to_string()],
+            space: String::from(":thinking:"),
+        };
+        assert_eq!(
+            run(cli_args),
+            "ą :thinking: ę :thinking: ć",
+        )
     }
 }

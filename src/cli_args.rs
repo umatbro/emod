@@ -12,8 +12,8 @@ Change normal text to emoji text 🎉
 #[derive(Parser, Debug)]
 #[clap(long_about = LONG_ABOUT)]
 pub struct Args {
-    #[clap(value_parser, help = "text to be parsed")]
-    pub text: String,
+    #[clap(value_parser, help = "Words to be parsed")]
+    pub words: Vec<String>,
     
     // emote to use as a whitespace character
     #[clap(short, long, default_value_t = String::from(":white_small_square:"), value_parser, help="emote to use as a whitespace character")]
